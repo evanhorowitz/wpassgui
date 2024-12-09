@@ -1,16 +1,16 @@
 import os
 import re
-import mutagen
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import ttk
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from mutagen.wave import WAVE
 from mutagen.easymp4 import EasyMP4
 from mutagen.asf import ASF
 from mutagen.oggvorbis import OggVorbis
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
 
-audio_extensions = ('.mp3', '.wav', '.flac', '.m4a', '.wma', '.ogg', '.aac')
+audio_extensions = ('.mp3', '.flac', '.wav', '.m4a', '.wma', '.ogg', '.aac')
 
 def get_audio_length(file_path):
     try:
@@ -80,78 +80,65 @@ def generate_playlist():
     directory = entry_directory.get()
     playlist_file = entry_playlist.get()
     base_directory = entry_base_directory.get()
-    exclude_instrumental = exclude_var.get()
-    if not directory or not playlist_file or not base_directory:
-        messagebox.showerror("Error", "Please select the music directory, base directory, and playlist file.")
-        return
-    progress_bar["value"] = 0
-    progress_bar["maximum"] = len([os.path.join(root, file) for root, _, files in os.walk(directory) for file in files if file.endswith(audio_extensions)])
+    exclude_instrumental = exclude_instrumental_var.get()
     create_playlist(directory, playlist_file, base_directory, exclude_instrumental, update_progress)
-    messagebox.showinfo("Success", f"Playlist created at {playlist_file}")
 
 def update_progress(current, total):
-    progress_bar["value"] = current
-    progress_bar.update()
+    progress.set(f"Processed {current} of {total} files")
+    progress_bar['value'] = (current / total) * 100
+    percentage.set(f"{(current / total) * 100:.2f}%")
 
-def launch_gui():
-    global entry_directory, entry_playlist, entry_base_directory, progress_bar, exclude_var
-    # Create the main window
-    root = tk.Tk()
-    root.title("Walkman Playlist Assistant Super Script (GUI)")
+# GUI setup
+root = tk.Tk()
+root.title("Walkman Playlist Assistant Super Script (GUI Edition) v0.2")
 
-    # Create and place the widgets
-    label_directory = tk.Label(root, text="Music Directory:")
-    label_directory.grid(row=0, column=0, padx=10, pady=10)
-    entry_directory = tk.Entry(root, width=50)
-    entry_directory.grid(row=0, column=1, padx=10, pady=10)
-    button_directory = tk.Button(root, text="Browse...", command=lambda: select_directory(entry_directory))
-    button_directory.grid(row=0, column=2, padx=10, pady=10)
+# Use ttk for modern themed widgets
+style = ttk.Style()
+style.theme_use('clam')  # You can try 'clam', 'alt', 'default', or 'classic'
 
-    label_base_directory = tk.Label(root, text="Base Directory:")
-    label_base_directory.grid(row=1, column=0, padx=10, pady=10)
-    entry_base_directory = tk.Entry(root, width=50)
-    entry_base_directory.grid(row=1, column=1, padx=10, pady=10)
-    button_base_directory = tk.Button(root, text="Browse...", command=lambda: select_directory(entry_base_directory))
-    button_base_directory.grid(row=1, column=2, padx=10, pady=10)
+# Get the background color from the current theme
+bg_color = style.lookup('TLabel', 'background')
 
-    label_playlist = tk.Label(root, text="Playlist File:")
-    label_playlist.grid(row=2, column=0, padx=10, pady=10)
-    entry_playlist = tk.Entry(root, width=50)
-    entry_playlist.grid(row=2, column=1, padx=10, pady=10)
-    button_playlist = tk.Button(root, text="Browse...", command=select_playlist_file)
-    button_playlist.grid(row=2, column=2, padx=10, pady=10)
+# Define custom styles
+style.configure('Custom.TLabel', background=bg_color)
+style.configure('Custom.TCheckbutton', background=bg_color)
 
-    exclude_var = tk.BooleanVar()
-    exclude_checkbox = tk.Checkbutton(root, text="Exclude 'Instrumental' and 'Karaoke' songs", variable=exclude_var)
-    exclude_checkbox.grid(row=3, column=0, columnspan=3, pady=10)
+padding = {'padx': 10, 'pady': 5}
 
-    button_generate = tk.Button(root, text="Generate Playlist", command=generate_playlist)
-    button_generate.grid(row=4, column=0, columnspan=3, pady=20)
+ttk.Label(root, text="Music Path:", style='Custom.TLabel').grid(row=0, column=0, sticky=tk.W, **padding)
+entry_directory = ttk.Entry(root, width=50)
+entry_directory.grid(row=0, column=1, sticky=tk.EW, **padding)
+ttk.Button(root, text="Browse", command=lambda: select_directory(entry_directory)).grid(row=0, column=2, sticky=tk.EW, **padding)
 
-    progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
-    progress_bar.grid(row=5, column=0, columnspan=3, pady=10)
+ttk.Label(root, text="Base Playlist Directory:", style='Custom.TLabel').grid(row=1, column=0, sticky=tk.W, **padding)
+entry_base_directory = ttk.Entry(root, width=50)
+entry_base_directory.grid(row=1, column=1, sticky=tk.EW, **padding)
+ttk.Button(root, text="Browse", command=lambda: select_directory(entry_base_directory)).grid(row=1, column=2, sticky=tk.EW, **padding)
 
-    # Run the main event loop
-    root.mainloop()
+ttk.Label(root, text="Playlist File Name:", style='Custom.TLabel').grid(row=2, column=0, sticky=tk.W, **padding)
+entry_playlist = ttk.Entry(root, width=50)
+entry_playlist.grid(row=2, column=1, sticky=tk.EW, **padding)
+ttk.Button(root, text="Browse", command=select_playlist_file).grid(row=2, column=2, sticky=tk.EW, **padding)
 
-def launch_command_line():
-    music_directory = input("Enter the path to the music folder: ")
-    base_directory = input("Enter the base directory to remove from paths: ")
-    playlist_path = input("Enter the path for the output playlist file (e.g., playlist): ")
-    exclude_instrumental = input("Exclude 'instrumental' and 'karaoke' songs? (yes/no): ").strip().lower() == 'yes'
-    create_playlist(music_directory, playlist_path, base_directory, exclude_instrumental)
-    print(f"Playlist created at {playlist_path}.m3u8")
+exclude_instrumental_var = tk.BooleanVar()
+ttk.Checkbutton(root, text="Exclude Instrumental/Karaoke Tracks", variable=exclude_instrumental_var, style='Custom.TCheckbutton').grid(row=3, columnspan=3, sticky=tk.W, **padding)
 
-def main():
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
+ttk.Button(root, text="Generate Playlist", command=generate_playlist).grid(row=4, columnspan=3, sticky=tk.EW, **padding)
 
-    if messagebox.askyesno("Choose Interface", "Do you want to use the GUI?"):
-        root.destroy()
-        launch_gui()
-    else:
-        root.destroy()
-        launch_command_line()
+progress = tk.StringVar()
+ttk.Label(root, textvariable=progress, style='Custom.TLabel').grid(row=5, columnspan=3, sticky=tk.EW, **padding)
 
-if __name__ == "__main__":
-    main()
+# Add progress bar and percentage label
+progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
+progress_bar.grid(row=6, column=0, columnspan=2, sticky=tk.EW, **padding)
+
+percentage = tk.StringVar()
+ttk.Label(root, textvariable=percentage, style='Custom.TLabel').grid(row=6, column=2, sticky=tk.E, **padding)
+
+# Make the window scalable
+for i in range(3):
+    root.grid_columnconfigure(i, weight=1)
+for i in range(7):
+    root.grid_rowconfigure(i, weight=1)
+
+root.mainloop()
