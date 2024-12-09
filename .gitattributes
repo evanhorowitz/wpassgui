@@ -1,2 +1,2 @@
 *.html linguist-detectable=false
-.build/** linguist-vendored
+build/** linguist-vendored
