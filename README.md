@@ -1,4 +1,4 @@
-# wpassgui
+# Walkman Playlist Assistant Super Script (GUI Edition)
 
 ![pngegg](https://github.com/user-attachments/assets/14605f7d-8072-4b47-a43a-aaad7e6a6fbd)
 
