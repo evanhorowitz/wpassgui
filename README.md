@@ -14,14 +14,15 @@ Supports WAV, FLAC, MP3, M4A, WMA, OGG, and AAC. Can easily support more by just
 
 -Select the Music folder you would like to scan for files.
 
--Select the root directory that you are going to store the playlist file in.
-
--Name the playlist file.
+-If its a single playlist, select the folder and name of the playlist file.
+-If you would like the software to generate a playlist for each subfolder in the folder you selected, select the folder you would like it to generate the files in. It generates files based on the folder name.
 
 -Generate the file.
 
 -yay
 
+
+-Also theres a file compare tab now. Lets you make sure your walkmans music folder is up to date with your PCs music folder.
 # Disclaimer:
 
 This is badly written in Python and compiled using PyInstaller. Built for both Windows and Linux. Tested on Windows 11 23H2 and OpenSUSE. Feel free to do whatever you would like with this tool.
