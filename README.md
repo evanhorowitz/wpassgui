@@ -15,6 +15,7 @@ Supports WAV, FLAC, MP3, M4A, WMA, OGG, and AAC. Can easily support more by just
 -Select the Music folder you would like to scan for files.
 
 -If its a single playlist, select the folder and name of the playlist file.
+
 -If you would like the software to generate a playlist for each subfolder in the folder you selected, select the folder you would like it to generate the files in. It generates files based on the folder name.
 
 -Generate the file.
